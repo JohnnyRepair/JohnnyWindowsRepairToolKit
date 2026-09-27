@@ -12,9 +12,7 @@ if %errorLevel% neq 0 (
 :: Ensure script directory is set
 cd /d "%~dp0"
 
-:: Snap window to the right half of the primary display (Native Win32 API)
-powershell -Command "$user32 = Add-Type -memberDefinition '[DllImport(\"user32.dll\")] public static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint); [DllImport(\"user32.dll\")] public static extern IntPtr GetForegroundWindow(); [DllImport(\"user32.dll\")] public static extern int GetSystemMetrics(int nIndex);' -name 'Win32' -namespace 'Win32' -passthru; $w = $user32::GetSystemMetrics(0); $h = $user32::GetSystemMetrics(1); $half = [int]($w / 2); $user32::MoveWindow($user32::GetForegroundWindow(), $half, 0, $half, $h, $true)" >nul 2>&1
-
+mode con: cols=95 lines=37
 title Johnny's Windows Repair Tool
 color F1
 
