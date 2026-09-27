@@ -19,11 +19,21 @@ color F1
 :: ===============================================================================
 :: AUTO-UPDATE SECTION
 :: ===============================================================================
-set "CURRENT_REV=2026.09.26-30:15"
+set "CURRENT_REV=2026.09.26-23:31"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
+set "UPDATER_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/updater.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
+set "LOCAL_UPDATER=%~dp0updater.bat"
 
 echo Checking for updates...
+
+:: 1. Ensure local updater.bat exists (download from GitHub if missing)
+if not exist "%LOCAL_UPDATER%" (
+    echo Helper updater script missing. Downloading updater.bat...
+    curl.exe -s -L -f "%UPDATER_URL%" -o "%LOCAL_UPDATER%" >nul 2>&1
+)
+
+:: 2. Check for main script updates
 curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
 if not exist "%TEMP_SCRIPT%" goto MENU
@@ -43,10 +53,11 @@ if "%CURRENT_REV%"=="%REMOTE_REV%" (
     goto MENU
 )
 
-:: Update detected: Launch external updater file and close main script
-echo New update found (%REMOTE_REV%)! Launching updater...
+:: 3. Update detected: Launch external updater file and close main script
+echo.
+echo New update found (%REMOTE_REV%)! Handing off to updater...
 timeout /t 1 >nul
-start "" "%~dp0updater.bat" "%TEMP_SCRIPT%" "%~f0"
+start "" "%LOCAL_UPDATER%" "%TEMP_SCRIPT%" "%~f0"
 exit /b
 
 :MENU
