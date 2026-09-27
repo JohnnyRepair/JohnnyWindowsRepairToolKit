@@ -1,4 +1,6 @@
 @echo off
+setlocal EnableExtensions
+
 :: Auto-elevate script to Run as Administrator
 net session >nul 2>&1
 if %errorLevel% neq 0 (
@@ -16,12 +18,12 @@ color F1
 :: ===============================================================================
 :: AUTO-UPDATE SECTION
 :: ===============================================================================
-set "CURRENT_REV=2026.09.26-22:52"
+set "CURRENT_REV=2026.09.26-22:55"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
 echo Checking for updates...
-powershell -Command "(New-Object System.Net.WebClient).DownloadFile('%UPDATE_URL%', '%TEMP_SCRIPT%')" >nul 2>&1
+curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
 if exist "%TEMP_SCRIPT%" (
     set "REMOTE_REV="
@@ -33,11 +35,16 @@ if exist "%TEMP_SCRIPT%" (
         if not "%CURRENT_REV%"=="%REMOTE_REV%" (
             echo.
             echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
-            copy /y "%TEMP_SCRIPT%" "%~f0" >nul
-            del /f /q "%TEMP_SCRIPT%" >nul
-            echo Update complete! Restarting script...
-            timeout /t 2 >nul
-            start "" "%~f0"
+            timeout /t 1 >nul
+            (
+                echo @echo off
+                echo timeout /t 1 ^>nul
+                echo copy /y "%TEMP_SCRIPT%" "%~f0" ^>nul
+                echo del /f /q "%TEMP_SCRIPT%" ^>nul
+                echo start "" "%~f0"
+                echo del /f /q "%%~f0"
+            ) > "%TEMP%\updater.bat"
+            start /b "" "%TEMP%\updater.bat"
             exit /b
         )
     )
