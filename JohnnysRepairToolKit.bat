@@ -23,13 +23,14 @@ color F1
 :: -------------------------------------------------------------------------------
 :: AUTO-UPDATE SECTION
 :: -------------------------------------------------------------------------------
-set "CURRENT_REV=2026.09.26-22:58"
+set "CURRENT_REV=2026.09.26-23:00"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
 echo Checking for updates...
 
-powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('%UPDATE_URL%', '%TEMP_SCRIPT%')" >nul 2>&1
+:: Fetch latest version using curl
+curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
 if exist "%TEMP_SCRIPT%" (
     set "REMOTE_REV="
@@ -41,11 +42,18 @@ if exist "%TEMP_SCRIPT%" (
         if not "%CURRENT_REV%"=="%REMOTE_REV%" (
             echo.
             echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
-            copy /y "%TEMP_SCRIPT%" "%~f0" >nul
-            del /f /q "%TEMP_SCRIPT%" >nul
-            echo Update complete! Restarting script...
-            timeout /t 2 >nul
-            start "" cmd /c "%~f0"
+            
+            :: Write external updater script so the main script can close cleanly
+            (
+                echo @echo off
+                echo timeout /t 1 ^>nul
+                echo copy /y "%TEMP_SCRIPT%" "%~f0" ^>nul
+                echo del /f /q "%TEMP_SCRIPT%" ^>nul
+                echo start "" cmd /c "%~f0"
+                echo del /f /q "%%~f0"
+            ) > "%TEMP%\updater.bat"
+            
+            start "" "%TEMP%\updater.bat"
             exit /b
         )
     )
