@@ -53,12 +53,12 @@ cls
 echo.
 echo  ===============================================================================
 echo.
-echo      #####   ####  #    # #    # #    # #   # #    #  ####  
-echo        #    #    # #    # ##   # #    #  # #  #   #  #      
-echo        #    #    # ###### # #  # ######   #   ####    ####  
-echo        #    #    # #    # #  # # #    #   #   #  #        # 
-echo   #    #    #    # #    # #   ## #    #   #   #   #  #    # 
-echo    ####      ####  #    # #    # #    #   #   #    #  ####  
+echo      #####   ####  #    # #    # #    # #   #  ####  
+echo        #    #    # #    # ##   # #    #  # #  #      
+echo        #    #    # ###### # #  # ######   #    ####  
+echo   #    #    #    # #    # #  # # #    #   #        # 
+echo   #    #    #    # #    # #   ## #    #   #   #    # 
+echo    ####      ####  #    # #    # #    #   #    ####  
 echo.
 echo                         WINDOWS REPAIR TOOLKIT
 echo.
@@ -68,7 +68,6 @@ echo  ==========================================================================
 echo.
 echo                    Loading diagnostic tools, please wait...
 
-:: PowerShell delay (guaranteed to pause on elevated Admin consoles)
 powershell -Command "Start-Sleep -Seconds 3"
 
 :MENU
