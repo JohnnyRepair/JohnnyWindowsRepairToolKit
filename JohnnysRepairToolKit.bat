@@ -1,7 +1,9 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 :: Auto-elevate script to Run as Administrator
 net session >nul 2>&1
-if %errorLevel% neq 0 (
+if !errorLevel! neq 0 (
     echo Requesting Administrative Privileges...
     powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit /b
@@ -16,7 +18,7 @@ color F1
 :: ===============================================================================
 :: AUTO-UPDATE SECTION
 :: ===============================================================================
-set "CURRENT_REV=2026.09.26-22:45"
+set "CURRENT_REV=2026.09.26-22:50"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
@@ -24,15 +26,16 @@ echo Checking for updates...
 powershell -Command "(New-Object System.Net.WebClient).DownloadFile('%UPDATE_URL%', '%TEMP_SCRIPT%')" >nul 2>&1
 
 if exist "%TEMP_SCRIPT%" (
-    for /f "tokens=2 delims=:" %%a in ('findstr /c:"Revision:" "%TEMP_SCRIPT%"') do set "REMOTE_REV=%%a"
+    for /f "tokens=2 delims=:" %%a in ('findstr /c:"Revision:" "%TEMP_SCRIPT%"') do (
+        set "REMOTE_REV=%%a"
+        :: Remove all spaces from the revision string
+        set "REMOTE_REV=!REMOTE_REV: =!"
+    )
+    
     if defined REMOTE_REV (
-        :: Clean leading spaces
-        set "REMOTE_REV=!REMOTE_REV:~1!"
-        
-        :: Compare local and remote revisions
-        if not "%CURRENT_REV%"=="%REMOTE_REV%" (
+        if not "!CURRENT_REV!"=="!REMOTE_REV!" (
             echo.
-            echo New update found! Upgrading to Revision %REMOTE_REV%...
+            echo New update found! Upgrading from !CURRENT_REV! to !REMOTE_REV!...
             copy /y "%TEMP_SCRIPT%" "%~f0" >nul
             del /f /q "%TEMP_SCRIPT%" >nul
             echo Update complete! Restarting script...
