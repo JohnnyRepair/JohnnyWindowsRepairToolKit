@@ -12,7 +12,9 @@ if %errorLevel% neq 0 (
 :: Ensure script directory is set
 cd /d "%~dp0"
 
-mode con: cols=95 lines=37
+:: Snap window to the right half of the primary display
+powershell -Command "$w=Add-Type -memberDefinition '[DllImport(\"user32.dll\")] public static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint); [DllImport(\"user32.dll\")] public static extern IntPtr GetForegroundWindow();' -name 'Win32' -namespace 'Win32' -passthru; $screen=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $halfWidth=[int]($screen.Width/2); $w::MoveWindow($w::GetForegroundWindow(), $halfWidth, 0, $halfWidth, $screen.Height, $true)" >nul 2>&1
+
 title Johnny's Windows Repair Tool
 color F1
 
