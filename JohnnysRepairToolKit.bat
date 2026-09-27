@@ -67,7 +67,9 @@ echo.
 echo  ===============================================================================
 echo.
 echo                    Loading diagnostic tools, please wait...
-timeout /t 3 >nul
+
+:: PowerShell delay (guaranteed to pause on elevated Admin consoles)
+powershell -Command "Start-Sleep -Seconds 3"
 
 :MENU
 cls
