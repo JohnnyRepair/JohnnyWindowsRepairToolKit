@@ -16,7 +16,7 @@ mode con: cols=95 lines=37
 title Johnny's Windows Repair Tool
 color F1
 
-set "CURRENT_REV=2026.09.26-23:45"
+set "CURRENT_REV=2026.09.26-99:99"
 
 :MENU
 cls
