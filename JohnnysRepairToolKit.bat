@@ -16,13 +16,64 @@ mode con: cols=95 lines=37
 title Johnny's Windows Repair Tool
 color F1
 
-set "CURRENT_REV=2026.09.26-99:99"
+:: ===============================================================================
+:: VERSION SETTING (YYYY.MM.DD)
+:: ===============================================================================
+set "REV_DATE=2026.09.27"
+
+:: Convert YYYY.MM.DD to "Month DD YYYY"
+for /f "tokens=1-3 delims=." %%a in ("%REV_DATE%") do (
+    set "M_NUM=%%b"
+    set "D_NUM=%%c"
+    set "Y_NUM=%%a"
+)
+
+if "%M_NUM%"=="01" set "M_NAME=January"
+if "%M_NUM%"=="02" set "M_NAME=February"
+if "%M_NUM%"=="03" set "M_NAME=March"
+if "%M_NUM%"=="04" set "M_NAME=April"
+if "%M_NUM%"=="05" set "M_NAME=May"
+if "%M_NUM%"=="06" set "M_NAME=June"
+if "%M_NUM%"=="07" set "M_NAME=July"
+if "%M_NUM%"=="08" set "M_NAME=August"
+if "%M_NUM%"=="09" set "M_NAME=September"
+if "%M_NUM%"=="10" set "M_NAME=October"
+if "%M_NUM%"=="11" set "M_NAME=November"
+if "%M_NUM%"=="12" set "M_NAME=December"
+
+:: Remove leading zero from day if present
+if "%D_NUM:~0,1%"=="0" set "D_NUM=%D_NUM:~1%"
+
+set "CURRENT_REV=%M_NAME% %D_NUM% %Y_NUM%"
+
+:: ===============================================================================
+:: SPLASH SCREEN
+:: ===============================================================================
+cls
+echo.
+echo  ===============================================================================
+echo.
+echo      #####   ####  #    # #    # #    # #   # #    #  ####  
+echo        #    #    # #    # ##   # #    #  # #  #   #  #      
+echo        #    #    # ###### # #  # ######   #   ####    ####  
+echo        #    #    # #    # #  # # #    #   #   #  #        # 
+echo   #    #    #    # #    # #   ## #    #   #   #   #  #    # 
+echo    ####      ####  #    # #    # #    #   #   #    #  ####  
+echo.
+echo                         WINDOWS REPAIR TOOLKIT
+echo.
+echo                    Revision : %CURRENT_REV%
+echo.
+echo  ===============================================================================
+echo.
+echo                    Loading diagnostic tools, please wait...
+timeout /t 3 >nul
 
 :MENU
 cls
 echo ===============================================================================
 echo                           JOHNNY'S WINDOWS REPAIR TOOL
-echo                             Revision: %CURRENT_REV%
+echo                             Revision : %CURRENT_REV%
 echo ===============================================================================
 echo  1. System Info                     - Displays system specs
 echo  2. SFC Scan                        - Fixes system files
