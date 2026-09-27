@@ -16,7 +16,7 @@ color F1
 :: ===============================================================================
 :: AUTO-UPDATE SECTION
 :: ===============================================================================
-set "CURRENT_REV=2026.09.26-22:43"
+set "CURRENT_REV=2026.09.26-22:45"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
