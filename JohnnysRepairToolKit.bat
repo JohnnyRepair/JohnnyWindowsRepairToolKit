@@ -7,29 +7,24 @@ setlocal EnableExtensions
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo Requesting Administrative Privileges...
-    powershell -Command "Start-Process cmd.exe -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit /b
 )
 
-:: Ensure working directory stays consistent
-cd /d "%~dp0"
-
-:: Set window size: 95 columns wide, 37 lines tall
+:: Set window size and appearance
 mode con: cols=95 lines=37
-
 title Johnny's Windows Repair Tool
 color F1
 
 :: -------------------------------------------------------------------------------
 :: AUTO-UPDATE SECTION
 :: -------------------------------------------------------------------------------
-set "CURRENT_REV=2026.09.26-23:00"
+set "CURRENT_REV=2026.09.26-23:05"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
 echo Checking for updates...
 
-:: Fetch latest version using curl
 curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
 if exist "%TEMP_SCRIPT%" (
@@ -42,18 +37,11 @@ if exist "%TEMP_SCRIPT%" (
         if not "%CURRENT_REV%"=="%REMOTE_REV%" (
             echo.
             echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
-            
-            :: Write external updater script so the main script can close cleanly
-            (
-                echo @echo off
-                echo timeout /t 1 ^>nul
-                echo copy /y "%TEMP_SCRIPT%" "%~f0" ^>nul
-                echo del /f /q "%TEMP_SCRIPT%" ^>nul
-                echo start "" cmd /c "%~f0"
-                echo del /f /q "%%~f0"
-            ) > "%TEMP%\updater.bat"
-            
-            start "" "%TEMP%\updater.bat"
+            copy /y "%TEMP_SCRIPT%" "%~f0" >nul
+            del /f /q "%TEMP_SCRIPT%" >nul
+            echo Update applied! Restarting...
+            timeout /t 2 >nul
+            start "" "%~f0"
             exit /b
         )
     )
