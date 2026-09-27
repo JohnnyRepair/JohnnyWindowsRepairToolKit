@@ -1,7 +1,7 @@
 @echo off
-:: -------------------------------------------------------------------------------
-:: AUTO-ELEVATE TO ADMINISTRATIVE PRIVILEGES
-:: -------------------------------------------------------------------------------
+setlocal EnableExtensions
+
+:: Auto-elevate to Admin
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo Requesting Administrative Privileges...
@@ -9,58 +9,44 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-:: Set window size and appearance
+:: Ensure script directory is set
+cd /d "%~dp0"
+
 mode con: cols=95 lines=37
 title Johnny's Windows Repair Tool
 color F1
 
-:: -------------------------------------------------------------------------------
+:: ===============================================================================
 :: AUTO-UPDATE SECTION
-:: -------------------------------------------------------------------------------
-set "CURRENT_REV=2026.09.26-23:10"
+:: ===============================================================================
+set "CURRENT_REV=2026.09.26-23:15"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
 echo Checking for updates...
-
-:: Download latest script version
 curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
-:: If download failed, skip update safely
 if not exist "%TEMP_SCRIPT%" goto MENU
 
-:: Extract remote revision
 set "REMOTE_REV="
 for /f "tokens=2 delims==" %%a in ('findstr /i /c:"set \"CURRENT_REV=" "%TEMP_SCRIPT%"') do (
     set "REMOTE_REV=%%~a"
 )
 
-:: If remote rev wasn't found, clean temp file and skip
 if not defined REMOTE_REV (
     del /f /q "%TEMP_SCRIPT%" >nul 2>&1
     goto MENU
 )
 
-:: If revisions match, clean temp file and proceed to menu
 if "%CURRENT_REV%"=="%REMOTE_REV%" (
     del /f /q "%TEMP_SCRIPT%" >nul 2>&1
     goto MENU
 )
 
-:: -------------------------------------------------------------------------------
-:: APPLY UPDATE
-:: -------------------------------------------------------------------------------
-echo.
-echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
-echo Updating file...
-
-copy /y "%TEMP_SCRIPT%" "%~f0" >nul
-del /f /q "%TEMP_SCRIPT%" >nul 2>&1
-
-echo.
-echo Update applied successfully! Restarting script...
-timeout /t 2 >nul
-start "" "%~f0"
+:: Update detected: Launch external updater file and close main script
+echo New update found (%REMOTE_REV%)! Launching updater...
+timeout /t 1 >nul
+start "" "%~dp0updater.bat" "%TEMP_SCRIPT%" "%~f0"
 exit /b
 
 :MENU
