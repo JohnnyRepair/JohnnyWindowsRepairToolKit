@@ -19,7 +19,7 @@ color F1
 :: ===============================================================================
 :: AUTO-UPDATE SECTION
 :: ===============================================================================
-set "CURRENT_REV=2026.09.26-23:31"
+set "CURRENT_REV=2026.09.26-23:20"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "UPDATER_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/updater.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
@@ -53,11 +53,11 @@ if "%CURRENT_REV%"=="%REMOTE_REV%" (
     goto MENU
 )
 
-:: 3. Update detected: Launch external updater file and close main script
+:: 3. Launch updater with Administrative privileges and close main script
 echo.
 echo New update found (%REMOTE_REV%)! Handing off to updater...
 timeout /t 1 >nul
-start "" "%LOCAL_UPDATER%" "%TEMP_SCRIPT%" "%~f0"
+powershell -Command "Start-Process '%LOCAL_UPDATER%' -ArgumentList '\"%TEMP_SCRIPT%\"', '\"%~f0\"' -Verb RunAs"
 exit /b
 
 :MENU
