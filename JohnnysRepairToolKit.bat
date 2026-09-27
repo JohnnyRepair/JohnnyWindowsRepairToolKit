@@ -1,6 +1,4 @@
 @echo off
-setlocal EnableExtensions
-
 :: -------------------------------------------------------------------------------
 :: AUTO-ELEVATE TO ADMINISTRATIVE PRIVILEGES
 :: -------------------------------------------------------------------------------
@@ -19,34 +17,51 @@ color F1
 :: -------------------------------------------------------------------------------
 :: AUTO-UPDATE SECTION
 :: -------------------------------------------------------------------------------
-set "CURRENT_REV=2026.09.26-23:05"
+set "CURRENT_REV=2026.09.26-23:10"
 set "UPDATE_URL=https://raw.githubusercontent.com/JohnnyRepair/JohnnyWindowsRepairToolKit/main/JohnnysRepairToolKit.bat"
 set "TEMP_SCRIPT=%TEMP%\latest_repair_tool.bat"
 
 echo Checking for updates...
 
+:: Download latest script version
 curl.exe -s -L -f "%UPDATE_URL%" -o "%TEMP_SCRIPT%" >nul 2>&1
 
-if exist "%TEMP_SCRIPT%" (
-    set "REMOTE_REV="
-    for /f "tokens=2 delims==" %%a in ('findstr /i /c:"set \"CURRENT_REV=" "%TEMP_SCRIPT%"') do (
-        set "REMOTE_REV=%%~a"
-    )
-    
-    if defined REMOTE_REV (
-        if not "%CURRENT_REV%"=="%REMOTE_REV%" (
-            echo.
-            echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
-            copy /y "%TEMP_SCRIPT%" "%~f0" >nul
-            del /f /q "%TEMP_SCRIPT%" >nul
-            echo Update applied! Restarting...
-            timeout /t 2 >nul
-            start "" "%~f0"
-            exit /b
-        )
-    )
-    del /f /q "%TEMP_SCRIPT%" >nul
+:: If download failed, skip update safely
+if not exist "%TEMP_SCRIPT%" goto MENU
+
+:: Extract remote revision
+set "REMOTE_REV="
+for /f "tokens=2 delims==" %%a in ('findstr /i /c:"set \"CURRENT_REV=" "%TEMP_SCRIPT%"') do (
+    set "REMOTE_REV=%%~a"
 )
+
+:: If remote rev wasn't found, clean temp file and skip
+if not defined REMOTE_REV (
+    del /f /q "%TEMP_SCRIPT%" >nul 2>&1
+    goto MENU
+)
+
+:: If revisions match, clean temp file and proceed to menu
+if "%CURRENT_REV%"=="%REMOTE_REV%" (
+    del /f /q "%TEMP_SCRIPT%" >nul 2>&1
+    goto MENU
+)
+
+:: -------------------------------------------------------------------------------
+:: APPLY UPDATE
+:: -------------------------------------------------------------------------------
+echo.
+echo New update found! Upgrading from %CURRENT_REV% to %REMOTE_REV%...
+echo Updating file...
+
+copy /y "%TEMP_SCRIPT%" "%~f0" >nul
+del /f /q "%TEMP_SCRIPT%" >nul 2>&1
+
+echo.
+echo Update applied successfully! Restarting script...
+timeout /t 2 >nul
+start "" "%~f0"
+exit /b
 
 :MENU
 cls
